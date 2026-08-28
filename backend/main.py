@@ -9,6 +9,7 @@ from backend.api.routes import (
     portfolio,
     trades,
     pipeline,
+    performance,
 )
 
 app = FastAPI(
@@ -33,6 +34,7 @@ app.include_router(decisions.router, prefix="/decisions", tags=["Decisions"])
 app.include_router(positions.router, prefix="/positions", tags=["Positions"])
 app.include_router(trades.router, prefix="/trades", tags=["Trades"])
 app.include_router(pipeline.router, prefix="/pipeline", tags=["Pipeline Execution & Scanner"])
+app.include_router(performance.router, prefix="/performance", tags=["Performance"])
 
 if __name__ == "__main__":
     import uvicorn

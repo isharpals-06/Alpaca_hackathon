@@ -1,14 +1,9 @@
 from fastapi import APIRouter
+from backend.execution.alpaca_client import alpaca_execution
 
 router = APIRouter()
 
 @router.get("")
 async def get_portfolio():
-    return {
-        "cash": 100000.0,
-        "buying_power": 100000.0,
-        "portfolio_value": 100000.0,
-        "unrealized_pnl": 0.0,
-        "realized_pnl": 0.0,
-        "open_positions_count": 0
-    }
+    state = await alpaca_execution.get_account_state()
+    return state.model_dump(mode="json")
