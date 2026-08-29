@@ -3,6 +3,7 @@ Documentation_al/
 documentation/
 docs/
 Documentation/
+*.zip
 
 # Environment Variables & Secrets
 .env
