@@ -56,10 +56,10 @@ class Opportunity(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     symbol: str
     underlying_price: float
-    historical_volatility: float = 0.0
-    implied_volatility: float = 0.0
-    iv_percentile: float = 50.0
-    liquidity_score: float = 0.0
+    historical_volatility: Optional[float] = 0.0
+    implied_volatility: Optional[float] = 0.0
+    iv_percentile: Optional[float] = 0.0
+    liquidity_score: Optional[float] = 0.0
     sector: Optional[str] = None
     candidate_contracts: List[CandidateContract] = Field(default_factory=list)
     scanned_at: datetime = Field(default_factory=datetime.utcnow)
