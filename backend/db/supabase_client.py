@@ -156,12 +156,30 @@ class SupabaseRepository:
                         f"{self.url}/rest/v1/debates?id=eq.{id}",
                         headers=self._get_headers(),
                     )
-                    if resp.is_success and resp.json():
-                        return Debate(**resp.json()[0])
             except Exception as ex:
                 logger.warning("Supabase get_debate error: %s", ex)
 
         return None
+
+    async def list_debates(self, limit: int = 10) -> List[Debate]:
+        if self.is_configured:
+            try:
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    resp = await client.get(
+                        f"{self.url}/rest/v1/debates?order=created_at.desc&limit={limit}",
+                        headers=self._get_headers(),
+                    )
+                    if resp.is_success and resp.json():
+                        return [Debate(**item) for item in resp.json()]
+            except Exception as ex:
+                logger.warning("Supabase list_debates error: %s", ex)
+
+        sorted_debates = sorted(
+            self._mem_debates.values(),
+            key=lambda x: x.get("created_at", ""),
+            reverse=True,
+        )
+        return [Debate(**item) for item in sorted_debates[:limit]]
 
     # ==========================================
     # Decision Operations
@@ -211,6 +229,22 @@ class SupabaseRepository:
         )
         return [Decision(**item) for item in sorted_decisions[:limit]]
 
+    async def get_decision(self, id: str) -> Optional[Decision]:
+        if id in self._mem_decisions:
+            return Decision(**self._mem_decisions[id])
+        if self.is_configured:
+            try:
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    resp = await client.get(
+                        f"{self.url}/rest/v1/decisions?id=eq.{id}",
+                        headers=self._get_headers(),
+                    )
+                    if resp.is_success and resp.json():
+                        return Decision(**resp.json()[0])
+            except Exception as ex:
+                logger.warning("Supabase get_decision error: %s", ex)
+        return None
+
     # ==========================================
     # Order Operations
     # ==========================================
@@ -242,6 +276,18 @@ class SupabaseRepository:
         return order
 
     async def list_orders(self, limit: int = 50) -> List[Order]:
+        if self.is_configured:
+            try:
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    resp = await client.get(
+                        f"{self.url}/rest/v1/orders?order=submitted_at.desc&limit={limit}",
+                        headers=self._get_headers(),
+                    )
+                    if resp.is_success and resp.json():
+                        return [Order(**item) for item in resp.json()]
+            except Exception as ex:
+                logger.warning("Supabase list_orders error: %s", ex)
+
         sorted_orders = sorted(
             self._mem_orders.values(),
             key=lambda x: x.get("submitted_at", ""),
@@ -281,6 +327,18 @@ class SupabaseRepository:
         return position
 
     async def list_positions(self) -> List[Position]:
+        if self.is_configured:
+            try:
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    resp = await client.get(
+                        f"{self.url}/rest/v1/positions?order=opened_at.desc",
+                        headers=self._get_headers(),
+                    )
+                    if resp.is_success and resp.json():
+                        return [Position(**item) for item in resp.json()]
+            except Exception as ex:
+                logger.warning("Supabase list_positions error: %s", ex)
+
         return [Position(**item) for item in self._mem_positions.values()]
 
     async def update_position(self, id: str, updates: Dict[str, Any]) -> Optional[Position]:

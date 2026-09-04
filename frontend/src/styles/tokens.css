@@ -1,0 +1,93 @@
+/* ==========================================================================
+   ALPACA AI — "THE CERTIFIED INSTRUMENT" DESIGN TOKENS
+   The visual grammar of money & legal instruments — guilloché, security
+   borders, struck copper seals — rendered modern (geometric sans, space,
+   motion). Warm paper for records; dark "press/vault" for live moments.
+   ========================================================================== */
+
+:root {
+  /* ---- Paper (light record surfaces) ---- */
+  --cream:        #FBF3E7;   /* app base */
+  --surface:      #FFFDF9;   /* raised paper */
+  --paper:        #F4EAD8;   /* aged / recessed paper */
+  --paper-deep:   #EADCC4;   /* deepest paper, security tint */
+
+  /* ---- Ink (text on paper) ---- */
+  --espresso:     #362A1F;   /* primary ink */
+  --espresso-2:   #4A3A2C;   /* softer ink */
+  --warm-taupe:   #7A6A5D;   /* muted ink / labels */
+  --faint-ink:    #A3968A;   /* faintest ink */
+
+  /* ---- Copper (the certifying accent) ---- */
+  --copper:       #B5651D;   /* seal / primary accent */
+  --copper-foil:  #C9843B;   /* lighter foil highlight */
+  --copper-deep:  #8F4E15;   /* struck / pressed copper */
+  --copper-ink:   #6E3C10;   /* copper text on paper (AA at 16px+) */
+
+  /* ---- Functional (semantics) ---- */
+  --olive:        #6B7A4F;   /* gain / approve */
+  --olive-deep:   #556340;
+  --oxblood:      #8C3B2E;   /* loss / veto / risk */
+  --oxblood-deep: #6F2C21;
+  --slate:        #434E5A;   /* neutral analyst */
+
+  /* ---- Dark "press / vault" surfaces (live moments) ---- */
+  --ink:          #211A12;   /* vault base */
+  --ink-1:        #2A2117;   /* raised vault */
+  --ink-2:        #342A1D;   /* card on vault */
+  --ink-3:        #40342380; /* translucent inset */
+  --ink-text:     #F3E7D0;   /* warm paper text on dark */
+  --ink-muted:    #B6A488;   /* muted text on dark */
+  --ink-faint:    #7E7059;   /* faintest on dark */
+
+  /* ---- Lines: engraving / hairlines / security ---- */
+  --hairline:        rgba(54, 33, 26, 0.13);
+  --hairline-strong: rgba(54, 33, 26, 0.26);
+  --engrave:         rgba(54, 33, 26, 0.42);
+  --ink-line:        rgba(243, 231, 208, 0.10);
+  --ink-line-strong: rgba(243, 231, 208, 0.20);
+  --copper-line:     rgba(181, 101, 29, 0.30);
+
+  /* legacy alias kept so existing markup keeps working */
+  --soft-border:  var(--hairline);
+
+  /* ---- Copper wash fills ---- */
+  --copper-wash:  rgba(181, 101, 29, 0.09);
+  --copper-glow:  rgba(181, 101, 29, 0.18);
+  --olive-wash:   rgba(107, 122, 79, 0.13);
+  --oxblood-wash: rgba(140, 59, 46, 0.12);
+
+  /* ---- Typography ---- */
+  --font-display: 'Bricolage Grotesque', 'Hanken Grotesk', system-ui, sans-serif;
+  --font-body:    'Hanken Grotesk', system-ui, -apple-system, sans-serif;
+  --font-mono:    'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace;
+
+  /* ---- Radii (crisp instrument, not pill-soft) ---- */
+  --r-xs: 3px;
+  --r-sm: 5px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 18px;
+
+  /* ---- Elevation: warm, restrained; boldness spent on the seal ---- */
+  --shadow-sm:    0 1px 2px rgba(54, 33, 26, 0.06);
+  --shadow-paper: 0 2px 4px rgba(54, 33, 26, 0.05), 0 8px 24px rgba(54, 33, 26, 0.06);
+  --shadow-lift:  0 4px 10px rgba(54, 33, 26, 0.08), 0 20px 48px rgba(54, 33, 26, 0.12);
+  --shadow-press: 0 8px 28px rgba(0, 0, 0, 0.34), 0 2px 8px rgba(0, 0, 0, 0.28);
+  --shadow-seal:  0 4px 2px rgba(110, 60, 16, 0.28), 0 10px 26px rgba(143, 78, 21, 0.32);
+  --inset-top:    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  --inset-top-dk: inset 0 1px 0 rgba(243, 231, 208, 0.08);
+
+  /* ---- Motion ---- */
+  --ease-out:   cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-io:    cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-seal:  cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast:   0.18s;
+  --dur-base:   0.32s;
+  --dur-slow:   0.6s;
+
+  /* ---- Layout ---- */
+  --maxw:   1200px;
+  --maxw-narrow: 920px;
+  --nav-h:  72px;
+}
