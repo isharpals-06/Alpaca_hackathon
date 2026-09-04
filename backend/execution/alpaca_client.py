@@ -152,3 +152,6 @@ class AlpacaClient:
         )
 
 alpaca_client = AlpacaClient()
+AlpacaExecutionClient = AlpacaClient
+alpaca_execution = alpaca_client
+

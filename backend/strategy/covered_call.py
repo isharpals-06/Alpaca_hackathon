@@ -66,3 +66,6 @@ class CoveredCallStrategy:
         )
 
 covered_call_strategy = CoveredCallStrategy()
+
+def select_best_covered_call_contract(opportunity: Opportunity, contracts_count: int = 1) -> Optional[ContractSpec]:
+    return covered_call_strategy.construct_proposal(opportunity, contracts_count)

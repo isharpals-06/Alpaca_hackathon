@@ -59,3 +59,5 @@ class RiskEngine:
         )
 
 risk_engine = RiskEngine()
+DeterministicRiskEngine = RiskEngine
+

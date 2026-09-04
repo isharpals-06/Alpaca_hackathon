@@ -66,3 +66,6 @@ class CashSecuredPutStrategy:
         )
 
 cash_secured_put_strategy = CashSecuredPutStrategy()
+
+def select_best_csp_contract(opportunity: Opportunity, contracts_count: int = 1) -> Optional[ContractSpec]:
+    return cash_secured_put_strategy.construct_proposal(opportunity, contracts_count)

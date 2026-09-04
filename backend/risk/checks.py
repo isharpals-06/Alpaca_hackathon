@@ -68,3 +68,9 @@ def check_collateral_sufficiency(contract: ContractSpec, portfolio: PortfolioSta
         f"Insufficient buying power (${portfolio.buying_power:,.2f}) for required collateral (${contract.max_loss_estimate:,.2f})."
     )
     return RiskCheckItem(check_name="Collateral & Buying Power Sufficiency", passed=passed, details=details)
+
+check_position_sizing = check_position_size
+check_total_options_exposure = check_options_exposure
+check_contract_validity = check_contract_parameters
+check_assignment_collateral = check_collateral_sufficiency
+

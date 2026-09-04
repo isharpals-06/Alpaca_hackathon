@@ -167,6 +167,9 @@ class TradingWorkflow:
         }
 
 trading_workflow = TradingWorkflow()
+CouncilStateGraph = TradingWorkflow
+council_graph = trading_workflow
 
 async def run_full_pipeline_cycle(symbol: Optional[str] = None) -> Dict[str, Any]:
     return await trading_workflow.execute_cycle(symbol)
+
