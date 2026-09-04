@@ -1,45 +1,72 @@
-import logging
+from typing import Dict, Any
+from datetime import datetime
 from backend.models.contracts import Opportunity, AgentOutput, StanceEnum
 from backend.agents.llm_client import llm_client
-from backend.agents.prompts.council_prompts import BULL_PROMPT
 
-logger = logging.getLogger("backend.council.bull")
-
-async def run_bull_analysis(
-    opportunity: Opportunity,
-    quant_output: AgentOutput,
-    vol_output: AgentOutput,
-) -> AgentOutput:
-    user_prompt = f"""Build the upside and income-generation case for {opportunity.symbol}:
-- Price: ${opportunity.underlying_price:.2f}
-- Quant Stance: {quant_output.stance.value} | Thesis: {quant_output.thesis}
-- Volatility Stance: {vol_output.stance.value} | Thesis: {vol_output.thesis}
-- Candidate Contracts:
-{[{'strike': c.strike_price, 'type': c.option_type.value, 'mid': c.mid_price, 'delta': c.delta, 'dte': c.days_to_expiration} for c in opportunity.candidate_contracts[:4]]}
-
-Argue why selling out-of-the-money options on this symbol provides a superior probability of profit and robust margin of safety.
+BULL_SYSTEM_PROMPT = """
+You are the Bull Agent on the Alpaca AI Autonomous Options Income Council.
+Your role: Identify upside catalysts, support levels, positive momentum, and advocate for selling Out-of-the-Money (OTM) Covered Calls or Cash-Secured Puts.
+Frame the constructive thesis: why the underlying price will hold above key support levels, enabling successful options theta decay.
+Provide your response strictly in the following JSON format:
+{
+    "stance": "BULLISH" | "NEUTRAL" | "CAUTION",
+    "confidence": float (0.0 to 1.0),
+    "thesis": string,
+    "claims": [string, string],
+    "risks": [string, string],
+    "recommendation": string,
+    "key_metrics": { "support_level": float, "upside_catalyst": string, "strategy_lean": string }
+}
 """
+
+async def run_bull_analysis(opportunity: Opportunity) -> AgentOutput:
+    symbol = opportunity.symbol
+    price = opportunity.underlying_price
+    support_level = round(price * 0.95, 2)
+    
+    fallback: Dict[str, Any] = {
+        "stance": StanceEnum.BULLISH.value,
+        "confidence": 0.80,
+        "thesis": f"{symbol} exhibits strong baseline price action at ${price:.2f}. Selling OTM Cash-Secured Puts or Covered Calls around ${support_level} provides a favorable margin of safety.",
+        "claims": [
+            f"Underlying price (${price:.2f}) has proven institutional support near ${support_level}.",
+            f"Selling premium allows profiting from flat or moderately positive drift."
+        ],
+        "risks": [
+            "Capped upside participation if the stock makes an explosive breakout above short call strike."
+        ],
+        "recommendation": "SELL_CASH_SECURED_PUT",
+        "key_metrics": {
+            "support_level": support_level,
+            "upside_catalyst": "Earnings & Sector Momentum",
+            "strategy_lean": "CASH_SECURED_PUT"
+        }
+    }
+
+    user_prompt = f"""
+Evaluate the bullish perspective for:
+Symbol: {symbol}
+Current Price: ${price:.2f}
+Estimated 5% Support Level: ${support_level}
+Sector: {opportunity.sector or 'General Equities'}
+"""
+
+    resp = await llm_client.call_llm_json(BULL_SYSTEM_PROMPT, user_prompt, fallback_dict=fallback)
+    
+    raw_stance = (resp.get("stance") or "BULLISH").upper()
     try:
-        res = await llm_client.generate_structured(
-            system_prompt=BULL_PROMPT,
-            user_prompt=user_prompt,
-            response_model=AgentOutput,
-            temperature=0.35,
-        )
-        res.agent_name = "Bull"
-        return res
-    except Exception as ex:
-        logger.warning("Bull agent LLM call fallback: %s", ex)
-        return AgentOutput(
-            agent_name="Bull",
-            stance=StanceEnum.BULLISH,
-            confidence=0.82,
-            thesis=f"{opportunity.symbol} exhibits resilient fundamentals and price floor support, making cash-secured put selling highly favorable.",
-            claims=[
-                f"Support near ${opportunity.underlying_price * 0.94:.2f} protects out-of-the-money put strikes",
-                "Option premium collected provides a 2-3% immediate margin of safety cushion",
-            ],
-            risks=["Broad index liquidation could drag the stock down"],
-            recommendation="SELL_PUT",
-            key_metrics={"support_level": round(opportunity.underlying_price * 0.94, 2)},
-        )
+        parsed_stance = StanceEnum(raw_stance)
+    except Exception:
+        parsed_stance = StanceEnum.BULLISH
+
+    return AgentOutput(
+        agent_name="Bull Agent",
+        stance=parsed_stance,
+        confidence=float(resp.get("confidence", fallback["confidence"])),
+        thesis=str(resp.get("thesis", fallback["thesis"])),
+        claims=resp.get("claims", fallback["claims"]),
+        risks=resp.get("risks", fallback["risks"]),
+        recommendation=str(resp.get("recommendation", fallback["recommendation"])),
+        key_metrics=resp.get("key_metrics", fallback["key_metrics"]),
+        timestamp=datetime.utcnow()
+    )

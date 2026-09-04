@@ -1,113 +1,112 @@
 import json
 import logging
-from typing import Dict, Any, Type, TypeVar, Optional
+import re
+from typing import Dict, Any, Optional
 import httpx
-from pydantic import BaseModel
 
 from backend.config import settings
 
-logger = logging.getLogger("backend.llm")
+logger = logging.getLogger("backend.agents.llm")
 
-T = TypeVar("T", bound=BaseModel)
-
-class OpenRouterClient:
+class LLMClient:
     """
-    Resilient client for OpenRouter LLM completions with structured Pydantic output parsing.
+    Unified OpenRouter / LLM client for AI Council Agents.
+    Executes prompt completions with structured JSON parsing and robust offline fallbacks.
     """
 
     def __init__(self):
         self.api_key = settings.OPENROUTER_API_KEY
         self.base_url = settings.OPENROUTER_BASE_URL.rstrip("/")
-        self.default_model = settings.DEFAULT_LLM_MODEL or "deepseek/deepseek-chat"
+        self.model = settings.DEFAULT_LLM_MODEL or "deepseek/deepseek-chat"
+        self.is_configured = bool(
+            self.api_key
+            and len(self.api_key) > 8
+            and not self.api_key.startswith("your_")
+        )
 
     def _get_headers(self) -> Dict[str, str]:
         return {
             "Authorization": f"Bearer {self.api_key}",
+            "HTTP-Referer": "https://alpaca-ai.trading",
+            "X-Title": "Alpaca AI Council",
             "Content-Type": "application/json",
-            "HTTP-Referer": "https://github.com/isharpals-06/Alpaca_hackathon",
-            "X-Title": "Alpaca AI Options Engine",
         }
 
-    async def generate_structured(
+    async def call_llm_json(
         self,
         system_prompt: str,
         user_prompt: str,
-        response_model: Type[T],
-        model: Optional[str] = None,
+        fallback_dict: Optional[Dict[str, Any]] = None,
         temperature: float = 0.3,
-        max_retries: int = 2,
-    ) -> T:
+    ) -> Dict[str, Any]:
         """
-        Sends a prompt to OpenRouter and parses the response into the specified Pydantic model.
+        Sends system + user prompt to OpenRouter and returns structured JSON dictionary.
+        Falls back safely to fallback_dict if offline or on error.
         """
-        target_model = model or self.default_model
-
-        schema_json = json.dumps(response_model.model_json_schema(), indent=2)
-        enriched_system_prompt = (
-            f"{system_prompt}\n\n"
-            f"IMPORTANT: You MUST respond ONLY with a single valid JSON object that strictly adheres to this JSON schema:\n"
-            f"{schema_json}\n"
-            f"Do NOT include explanations outside the JSON. Do not wrap in markdown quotes if possible, or use standard ```json ... ```."
-        )
+        if not self.is_configured:
+            logger.info("OpenRouter API key not configured. Using intelligent heuristic fallback.")
+            return fallback_dict or {}
 
         payload = {
-            "model": target_model,
+            "model": self.model,
             "messages": [
-                {"role": "system", "content": enriched_system_prompt},
+                {"role": "system", "content": f"{system_prompt}\n\nIMPORTANT: You must respond in valid JSON format only, matching the requested schema exactly with no surrounding explanation."},
                 {"role": "user", "content": user_prompt},
             ],
             "temperature": temperature,
             "response_format": {"type": "json_object"},
         }
 
-        last_error = None
-        for attempt in range(max_retries + 1):
-            try:
-                async with httpx.AsyncClient(timeout=35.0) as client:
-                    resp = await client.post(
-                        f"{self.base_url}/chat/completions",
-                        headers=self._get_headers(),
-                        json=payload,
-                    )
-                    
-                    if not resp.is_success:
-                        error_detail = resp.text
-                        logger.warning(
-                            "OpenRouter error (attempt %d/%d): status %d, detail: %s",
-                            attempt + 1, max_retries + 1, resp.status_code, error_detail
-                        )
-                        raise ValueError(f"OpenRouter HTTP {resp.status_code}: {error_detail}")
+        try:
+            async with httpx.AsyncClient(timeout=25.0) as client:
+                resp = await client.post(
+                    f"{self.base_url}/chat/completions",
+                    headers=self._get_headers(),
+                    json=payload,
+                )
 
-                    raw_text = resp.json()["choices"][0]["message"]["content"].strip()
-                    cleaned_json = self._clean_json_text(raw_text)
-                    parsed_dict = json.loads(cleaned_json)
-                    return response_model(**parsed_dict)
+                if resp.is_success:
+                    data = resp.json()
+                    content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+                    parsed = self._extract_json(content)
+                    if parsed:
+                        return parsed
+                else:
+                    logger.warning("OpenRouter API returned error %s: %s", resp.status_code, resp.text)
+        except Exception as ex:
+            logger.warning("Error during OpenRouter LLM call: %s", ex)
 
-            except Exception as ex:
-                last_error = ex
-                logger.warning("Attempt %d failed to parse structured output: %s", attempt + 1, ex)
-                if attempt == max_retries:
-                    break
+        return fallback_dict or {}
 
-        raise RuntimeError(f"Failed to generate structured output after {max_retries + 1} attempts: {last_error}")
-
-    def _clean_json_text(self, text: str) -> str:
-        """Strips markdown code fences and extraneous text surrounding json."""
+    def _extract_json(self, text: str) -> Optional[Dict[str, Any]]:
+        """Extracts JSON object from response string, stripping markdown fences if present."""
+        if not text:
+            return None
         text = text.strip()
-        if text.startswith("```"):
-            lines = text.split("\n")
-            if lines[0].startswith("```"):
-                lines = lines[1:]
-            if lines and lines[-1].strip() == "```":
-                lines = lines[:-1]
-            text = "\n".join(lines).strip()
-        
-        # Locate the outer JSON bounds { ... }
-        start_idx = text.find("{")
-        end_idx = text.rfind("}")
-        if start_idx != -1 and end_idx != -1 and end_idx >= start_idx:
-            text = text[start_idx : end_idx + 1]
-        return text
 
-# Singleton instance
-llm_client = OpenRouterClient()
+        # Direct JSON load
+        try:
+            return json.loads(text)
+        except Exception:
+            pass
+
+        # Regex for markdown json block ```json ... ```
+        match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.DOTALL)
+        if match:
+            try:
+                return json.loads(match.group(1))
+            except Exception:
+                pass
+
+        # Search for first { to last }
+        start = text.find("{")
+        end = text.rfind("}")
+        if start != -1 and end != -1 and end > start:
+            try:
+                return json.loads(text[start : end + 1])
+            except Exception:
+                pass
+
+        return None
+
+llm_client = LLMClient()

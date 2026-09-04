@@ -29,10 +29,14 @@ export interface Debate {
 export interface Decision {
   id: string
   opportunity_id: string
-  action: 'TRADE' | 'NO_TRADE' | 'HOLD' | 'CLOSE' | 'ROLL'
+  symbol?: string
+  action: 'TRADE' | 'NO_TRADE' | 'HOLD' | 'CLOSE' | 'ROLL' | 'EXECUTED' | 'RISK_VETO' | 'RISK VETO' | string
   rationale: string
   confidence_score: number
-  recommended_strategy?: 'COVERED_CALL' | 'CASH_SECURED_PUT'
+  recommended_strategy?: 'COVERED_CALL' | 'CASH_SECURED_PUT' | string
+  order_spec?: string
+  premium?: number
+  status?: string
   created_at: string
 }
 
@@ -47,4 +51,30 @@ export interface Position {
   days_to_expiration: number
   recommendation: string
   opened_at: string
+}
+
+export interface PerformanceHistoryPoint {
+  date: string
+  cumulative_pnl: number
+  daily_pnl?: number
+}
+
+export interface PerformanceBreakdownItem {
+  symbol: string
+  entry_date: string
+  exit_date?: string
+  strategy: string
+  realized_pnl: number
+  unrealized_pnl?: number
+  status: string
+}
+
+export interface PerformanceData {
+  total_pnl: number
+  realized_pnl: number
+  unrealized_pnl: number
+  win_rate_pct: number
+  total_trades_count: number
+  history: PerformanceHistoryPoint[]
+  breakdown: PerformanceBreakdownItem[]
 }

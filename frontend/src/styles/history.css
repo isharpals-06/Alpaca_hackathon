@@ -1,0 +1,181 @@
+/* ==========================================================================
+   ALPACA AI — THE RECORDS ROOM · HISTORY
+   The decision ledger: a warm-paper archival record. Engraved table, ledger
+   field headers, denomination numerals, struck decision stamps. No soft cards.
+   ========================================================================== */
+
+/* ---------- Compact records-room page header ---------- */
+.rr-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 28px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.rr-head__text { min-width: 0; }
+.rr-head__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(25px, 3.2vw, 33px);
+  letter-spacing: -0.02em;
+  color: var(--espresso);
+  line-height: 1.05;
+}
+.rr-head__sub {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--warm-taupe);
+  max-width: 62ch;
+}
+.rr-head__aside { display: inline-flex; align-items: center; gap: 20px; flex-shrink: 0; }
+
+/* small engraved figure — a ledger tally (e.g. records on file) */
+.rr-figure { text-align: right; }
+.rr-figure__num {
+  display: block;
+  margin-top: 5px;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--espresso);
+}
+
+/* ---------- Ledger panel (extends .eng-panel) ---------- */
+.ledger-panel { overflow: hidden; }
+.ledger-panel .eng-panel__head { flex-wrap: wrap; row-gap: 12px; }
+
+/* ---------- Segmented filter — crisp engraved toggle ---------- */
+.ledger-filter {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  background: var(--paper);
+  box-shadow: var(--inset-top);
+}
+.ledger-filter__btn {
+  appearance: none;
+  border: 0;
+  border-right: 1px solid var(--hairline);
+  background: transparent;
+  padding: 7px 15px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--warm-taupe);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+.ledger-filter__btn:last-child { border-right: 0; }
+.ledger-filter__btn:hover { color: var(--espresso); background: var(--copper-wash); }
+.ledger-filter__btn.is-active {
+  background: var(--surface);
+  color: var(--copper-ink);
+  font-weight: 600;
+  box-shadow: var(--inset-top);
+}
+.ledger-filter__count { color: var(--faint-ink); }
+.ledger-filter__btn.is-active .ledger-filter__count { color: var(--copper); }
+
+/* ---------- The engraved table ---------- */
+.ledger-scroll { overflow-x: auto; }
+.ledger-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  min-width: 720px;
+}
+.ledger-table thead th {
+  padding: 12px 22px;
+  border-bottom: 1px solid var(--hairline-strong);
+  background: var(--paper);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--warm-taupe);
+  white-space: nowrap;
+}
+.ledger-table thead th.is-right { text-align: right; }
+.ledger-table tbody td {
+  padding: 13px 22px;
+  border-bottom: 1px solid var(--hairline);
+  font-size: 14px;
+  color: var(--espresso);
+  vertical-align: middle;
+}
+.ledger-table tbody tr { transition: background var(--dur-fast) var(--ease-out); }
+.ledger-table tbody tr:hover { background: var(--copper-wash); }
+.ledger-table tbody tr:last-child td { border-bottom: 0; }
+
+.ledger-cell-symbol {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14.5px;
+  letter-spacing: -0.01em;
+  color: var(--espresso);
+}
+.ledger-cell-date,
+.ledger-cell-order,
+.ledger-cell-premium {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+}
+.ledger-cell-date { color: var(--warm-taupe); }
+.ledger-cell-order { color: var(--espresso-2); }
+.ledger-cell-premium { text-align: right; font-weight: 600; color: var(--espresso); }
+
+/* ---------- Status chip (struck, letterpressed) ---------- */
+.ledger-status {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: var(--r-xs);
+  border: 1px solid transparent;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.ledger-status--filled { color: var(--olive-deep); background: var(--olive-wash); border-color: rgba(107, 122, 79, 0.28); }
+.ledger-status--blocked { color: var(--oxblood); background: var(--oxblood-wash); border-color: rgba(140, 59, 46, 0.28); }
+.ledger-status--recorded { color: var(--warm-taupe); background: rgba(122, 106, 93, 0.10); border-color: var(--hairline-strong); }
+
+/* ---------- Banner + big states (warm, engraved) ---------- */
+.ledger-error {
+  margin: 18px 22px;
+  padding: 12px 16px;
+  border: 1px solid var(--oxblood);
+  background: var(--oxblood-wash);
+  color: var(--oxblood);
+  border-radius: var(--r-sm);
+  font-size: 13px;
+}
+.ledger-state {
+  margin: 18px 22px 22px;
+  padding: 46px 20px;
+  text-align: center;
+  color: var(--warm-taupe);
+  background: var(--paper);
+  border: 1px dashed var(--hairline-strong);
+  border-radius: var(--r-sm);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 560px) {
+  .rr-head { align-items: flex-start; }
+  .ledger-error, .ledger-state { margin-inline: 16px; }
+}

@@ -1,0 +1,192 @@
+/* ==========================================================================
+   ALPACA AI — THE RECORDS ROOM · PERFORMANCE (P&L)
+   The P&L statement: denomination-style figures on a certificate, an engraved
+   equity chart, and a tallied breakdown ledger. Gains olive, losses oxblood.
+   ========================================================================== */
+
+/* ---------- Compact records-room page header (shared language) ---------- */
+.rr-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 28px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.rr-head__text { min-width: 0; }
+.rr-head__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(25px, 3.2vw, 33px);
+  letter-spacing: -0.02em;
+  color: var(--espresso);
+  line-height: 1.05;
+}
+.rr-head__sub {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--warm-taupe);
+  max-width: 62ch;
+}
+.rr-head__aside { display: inline-flex; align-items: center; gap: 20px; flex-shrink: 0; }
+
+/* ---------- Page-level error banner ---------- */
+.perf-error {
+  margin-bottom: 22px;
+  padding: 12px 16px;
+  border: 1px solid var(--oxblood);
+  background: var(--oxblood-wash);
+  color: var(--oxblood);
+  border-radius: var(--r-sm);
+  font-size: 13px;
+}
+
+/* ---------- Vertical rhythm between record blocks ---------- */
+.perf-block { margin-bottom: 24px; }
+
+/* ---------- P&L statement: denominations as banknote fields ---------- */
+.pnl-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.pnl-denom {
+  padding: 6px 26px;
+  border-left: 1px solid var(--hairline);
+}
+.pnl-denom:first-child { border-left: 0; padding-left: 4px; }
+
+.pnl-statement-strip { margin-top: 22px; }
+
+@media (max-width: 820px) {
+  .pnl-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 24px; }
+  .pnl-denom { padding: 10px 22px; }
+  .pnl-denom:nth-child(2n + 1) { border-left: 0; padding-left: 4px; }
+}
+@media (max-width: 460px) {
+  .pnl-summary { grid-template-columns: 1fr; }
+  .pnl-denom { border-left: 0; border-top: 1px solid var(--hairline); padding: 18px 4px; }
+  .pnl-denom:first-child { border-top: 0; padding-top: 4px; }
+}
+
+/* ---------- Engraved chart panel ---------- */
+.pnl-chart { width: 100%; height: 320px; }
+.pnl-state {
+  height: 300px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: var(--warm-taupe);
+  background: var(--paper);
+  border: 1px dashed var(--hairline-strong);
+  border-radius: var(--r-sm);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+/* Warm engraved tooltip for the recharts line */
+.pnl-tooltip {
+  background: var(--surface);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-sm);
+  padding: 9px 13px;
+  box-shadow: var(--shadow-lift);
+  font-family: var(--font-mono);
+}
+.pnl-tooltip__label {
+  margin: 0;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--warm-taupe);
+}
+.pnl-tooltip__value { margin: 4px 0 0; font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.pnl-tooltip__value.is-gain { color: var(--olive); }
+.pnl-tooltip__value.is-loss { color: var(--oxblood); }
+
+/* ---------- Breakdown ledger (tallied closed trades) ---------- */
+.pnl-panel { overflow: hidden; }
+.pnl-scroll { overflow-x: auto; }
+.pnl-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  min-width: 620px;
+}
+.pnl-table thead th {
+  padding: 12px 22px;
+  border-bottom: 1px solid var(--hairline-strong);
+  background: var(--paper);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--warm-taupe);
+  white-space: nowrap;
+}
+.pnl-table thead th.is-right { text-align: right; }
+.pnl-table tbody td {
+  padding: 13px 22px;
+  border-bottom: 1px solid var(--hairline);
+  font-size: 14px;
+  color: var(--espresso);
+  vertical-align: middle;
+}
+.pnl-table tbody tr { transition: background var(--dur-fast) var(--ease-out); }
+.pnl-table tbody tr:hover { background: var(--copper-wash); }
+.pnl-table tbody tr:last-child td { border-bottom: 0; }
+
+.pnl-cell-symbol {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14.5px;
+  letter-spacing: -0.01em;
+  color: var(--espresso);
+}
+.pnl-cell-date { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 13px; color: var(--warm-taupe); }
+.pnl-cell-strategy { font-size: 13px; color: var(--espresso-2); text-transform: capitalize; }
+
+/* realized P&L cell: figure + tally bar */
+.pnl-cell-realized { text-align: right; }
+.pnl-realized-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+.pnl-realized-num.is-gain { color: var(--olive); }
+.pnl-realized-num.is-loss { color: var(--oxblood); }
+.pnl-tally {
+  position: relative;
+  margin-top: 6px;
+  margin-left: auto;
+  height: 3px;
+  width: 100%;
+  max-width: 120px;
+  border-radius: 2px;
+  background: var(--hairline);
+  overflow: hidden;
+}
+.pnl-tally__fill { height: 100%; border-radius: 2px; }
+.pnl-tally__fill--gain { background: var(--olive); }
+.pnl-tally__fill--loss { background: var(--oxblood); }
+
+/* status chips */
+.pnl-status {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: var(--r-xs);
+  border: 1px solid transparent;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.pnl-status--open { color: var(--copper-ink); background: var(--copper-wash); border-color: var(--copper-line); }
+.pnl-status--closed { color: var(--olive-deep); background: var(--olive-wash); border-color: rgba(107, 122, 79, 0.28); }
+
+@media (max-width: 560px) { .rr-head { align-items: flex-start; } }

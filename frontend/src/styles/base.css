@@ -1,0 +1,203 @@
+/* ==========================================================================
+   ALPACA AI — GLOBAL BASE LAYER
+   Resets, typographic defaults, paper grain, focus, motion safety.
+   Everything here is app-wide; component styles live in their own files.
+   ========================================================================== */
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--cream);
+  color: var(--espresso);
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'ss01', 'cv01';
+}
+
+/* Faint paper fibre grain over the whole app — authenticity, not noise. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+}
+
+#root { position: relative; z-index: 1; }
+
+/* ---- Headings: geometric display, tight, confident ---- */
+h1, h2, h3, h4, h5, h6,
+.display-text, .brand {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--espresso);
+  margin: 0;
+}
+
+p { margin: 0; }
+
+/* ---- Data / numerals: mono, tabular, only for REAL data ---- */
+code, pre, .mono-text, .symbol, .score, .confidence, .num, .u-data {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1, 'zero' 1;
+  letter-spacing: -0.01em;
+}
+
+/* A number that should never wrap or jitter as it updates */
+.num { font-variant-numeric: tabular-nums; }
+
+/* ---- Refined field label (ledger field, NOT a marketing eyebrow) ---- */
+.field-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--warm-taupe);
+}
+
+/* ---- Hairline rule, engraved ---- */
+.rule {
+  height: 1px;
+  border: 0;
+  background: linear-gradient(90deg, transparent, var(--hairline-strong) 12%, var(--hairline-strong) 88%, transparent);
+}
+
+/* ---- Links & buttons reset ---- */
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; }
+
+/* ---- Selection & focus ---- */
+::selection { background: var(--copper); color: #fff; }
+
+:focus-visible {
+  outline: 2px solid var(--copper);
+  outline-offset: 2px;
+  border-radius: var(--r-xs);
+}
+
+/* ---- Warm scrollbar ---- */
+* { scrollbar-color: var(--copper) transparent; scrollbar-width: thin; }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: var(--copper-line);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover { background: var(--copper); background-clip: content-box; }
+
+/* ---- Reusable dark "press/vault" panel ---- */
+.on-ink { color: var(--ink-text); }
+.on-ink .field-label { color: var(--ink-muted); }
+
+/* ==========================================================================
+   SHARED COMPONENTS — one button + panel vocabulary across every surface.
+   ========================================================================== */
+
+/* ---- Buttons ---- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  font-weight: 600;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform var(--dur-fast) var(--ease-out),
+              box-shadow var(--dur-fast) var(--ease-out),
+              background var(--dur-fast) var(--ease-out),
+              color var(--dur-fast) var(--ease-out),
+              border-color var(--dur-fast) var(--ease-out);
+  white-space: nowrap;
+  text-decoration: none;
+}
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.btn svg { transition: transform var(--dur-fast) var(--ease-out); }
+.btn:not(:disabled):hover svg.arrow { transform: translateX(3px); }
+
+.btn--copper {
+  color: #FFF6EA;
+  background: linear-gradient(180deg, var(--copper-foil), var(--copper) 55%, var(--copper-deep));
+  border-color: var(--copper-deep);
+  box-shadow: var(--inset-top), 0 4px 14px rgba(143, 78, 21, 0.28);
+}
+.btn--copper:not(:disabled):hover { transform: translateY(-1px); box-shadow: var(--inset-top), 0 8px 22px rgba(143, 78, 21, 0.38); }
+
+.btn--ghost { color: var(--copper-ink); background: transparent; border-color: var(--copper-line); }
+.btn--ghost:not(:disabled):hover { background: var(--copper-wash); border-color: var(--copper); }
+
+.btn--ink {
+  color: var(--ink-text);
+  background: linear-gradient(180deg, var(--ink-2), var(--ink));
+  border-color: var(--ink-line-strong);
+  box-shadow: var(--inset-top-dk), 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+.btn--ink:not(:disabled):hover { transform: translateY(-1px); }
+
+.btn--quiet { color: var(--warm-taupe); background: transparent; border-color: var(--hairline-strong); }
+.btn--quiet:not(:disabled):hover { color: var(--espresso); border-color: var(--warm-taupe); background: rgba(54,33,26,0.03); }
+
+.btn--lg { padding: 13px 26px; font-size: 15.5px; }
+.btn--sm { padding: 7px 14px; font-size: 13px; }
+
+/* ---- Engraved panel (the record surface) ---- */
+.eng-panel {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-paper);
+}
+.eng-panel--ink {
+  background: linear-gradient(180deg, var(--ink-2), var(--ink-1));
+  border-color: var(--ink-line-strong);
+  box-shadow: var(--shadow-press), var(--inset-top-dk);
+  color: var(--ink-text);
+}
+.eng-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--hairline);
+}
+.eng-panel__title { font-family: var(--font-display); font-size: 18px; font-weight: 700; letter-spacing: -0.01em; color: var(--espresso); }
+.eng-panel__sub { font-size: 13px; color: var(--warm-taupe); margin-top: 2px; }
+.eng-panel__body { padding: 22px; }
+
+/* ==========================================================================
+   MOTION SAFETY — honor reduced-motion everywhere at once.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

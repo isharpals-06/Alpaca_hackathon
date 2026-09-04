@@ -58,6 +58,9 @@ dist-ssr/
 # IDE & Operating System
 .vscode/
 .idea/
+.claude/
+frontend/.claude/
+graphify-out/
 *.swp
 *.swo
 *~
